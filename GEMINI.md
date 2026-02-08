@@ -99,8 +99,9 @@ SITO uses a **Control Plane / Data Plane** architecture with asynchronous job pr
 
 ## 7. Operational Commands (CLI)
 *   **Local Environment:** Always use a local opam switch (`opam switch create . --no-install`).
-*   **Setup:** `opam install . --deps-only`
-*   **Build:** `dune build`
-*   **Test:** `dune runtest`
-*   **Run Server:** `dune exec bin/server.exe` (Local unified mode)
-*   **Run K8s:** `make k8s-deploy` (Not yet implemented)
+*   **Setup:** `make setup`
+*   **Build:** `make build`
+*   **Test:** `make test`
+*   **Run Local (API + UI + Redis):** `make run`
+*   **Run Worker Local:** `REDIS_HOST=127.0.0.1 opam exec -- dune exec bin/worker/main.exe`
+*   **Run K8s:** `make docker-build && make k8s-deploy`
