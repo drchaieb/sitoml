@@ -69,7 +69,14 @@ SITO utilizes OCaml 5.x's multicore capabilities and structured concurrency via 
 
 ## 5. Software Development Cycle
 
-### 5.1. Tooling
+### 5.1. Development Standards
+*   **Module-Driven Development:** All features MUST be implemented using a module-driven approach.
+*   **Interface-First:** Every `.ml` file MUST have a corresponding `.mli` signature file.
+*   **Encapsulation:** Use Abstract Data Types (ADTs) in signatures to hide implementation details and maintain invariants.
+*   **Documentation:** `.mli` files serve as the primary API documentation using `(** ... *)` comments.
+*   **Judicious `open`:** Avoid global `open` statements; prefer qualified names or local `open` to maintain clarity.
+
+### 5.2. Tooling
 *   **Build System:** `dune`.
 *   **Package Manager:** `opam`.
 *   **Formatter:** `ocamlformat`.
@@ -81,10 +88,12 @@ SITO utilizes OCaml 5.x's multicore capabilities and structured concurrency via 
 3.  **Property-Based Testing:** `QCheck` for validating symbolic identities (e.g., $d(XY) = XdY + YdX + dXdY$).
 
 ## 6. Current Status & Known Issues
-*   **Status:** Initializing OCaml refactor. Architecture defined in `plan-ocaml.md`.
-*   **Planned:** Moving from Python/Julia prototypes to a unified OCaml codebase.
+*   **Status:** Complete. Core library, Backend, and Frontend are implemented and verified.
+*   **Documentation:** See `docs/USER_GUIDE.md` for usage instructions. Source documentation is generated in `_doc/_html`.
+*   **Verification:** `dune runtest` passes all symbolic and numerical verification tests.
 
 ## 7. Operational Commands (CLI)
+*   **Local Environment:** Always use a local opam switch (`opam switch create . --no-install`).
 *   **Setup:** `opam install . --deps-only`
 *   **Build:** `dune build`
 *   **Test:** `dune runtest`

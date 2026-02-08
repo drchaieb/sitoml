@@ -1,0 +1,6 @@
+(executable
+ (name main)
+ (modes js)
+ (libraries sito_core brr)
+ (preprocess (pps js_of_ocaml-ppx))
+ (js_of_ocaml (flags --effects=cps)))

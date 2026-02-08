@@ -1,0 +1,11 @@
+(test
+ (name test_sito)
+ (libraries sito_core alcotest))
+
+(test
+ (name test_server)
+ (libraries sito_core alcotest eio_main))
+
+(test
+ (name test_verification)
+ (libraries sito_core alcotest))

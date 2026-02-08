@@ -1,0 +1,28 @@
+opam-version: "2.0"
+synopsis: "Symbolic Ito"
+description: "A compiler for stochastic models"
+depends: [
+  "ocaml" {>= "5.0"}
+  "dune" {>= "3.0"}
+  "owl"
+  "menhir"
+  "dream"
+  "eio"
+  "eio_main"
+  "ppx_deriving_yojson"
+  "alcotest" {with-test}
+]
+build: [
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
+]

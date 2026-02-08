@@ -1,0 +1,10 @@
+(library
+ (public_name sito_core)
+ (name sito_core)
+ (libraries owl eio)
+ (preprocess (pps ppx_deriving_yojson)))
+
+(ocamllex lexer)
+
+(menhir
+ (modules parser))
