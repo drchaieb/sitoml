@@ -96,8 +96,62 @@ curl -X POST http://localhost:8080/api/v1/simulate \
 
 SITO uses `odoc` for automated, high-quality documentation generation from source code (similar to Sphinx/MkDocs).
 
-### Generating Documentation
-```bash
-make doc
-```
-The documentation will be generated in `_build/default/_doc/_html/index.html`. You can open it in any browser to explore the modules, signatures, and internal documentation strings.
+## 4. Kubernetes Deployment
+
+
+
+SITO is designed to run on Kubernetes with a Redis message broker.
+
+
+
+### Prerequisites
+
+- Docker
+
+- Kubectl
+
+- A Kubernetes cluster (Kind, Minikube, or Cloud)
+
+
+
+### Deployment Steps
+
+1.  **Build the Docker Image:**
+
+    ```bash
+
+    make docker-build
+
+    ```
+
+2.  **Deploy to Cluster:**
+
+    ```bash
+
+    make k8s-deploy
+
+    ```
+
+3.  **Access the Service:**
+
+    Find the external IP of the `sito-api` service:
+
+    ```bash
+
+    kubectl get svc sito-api
+
+    ```
+
+    Open `http://<EXTERNAL-IP>` in your browser.
+
+
+
+### Architecture
+
+- **sito-api:** Handles user requests and pushes jobs to Redis.
+
+- **sito-worker:** Pulls jobs from Redis, runs simulations, and saves results to shared storage.
+
+- **Redis:** Manages the job queue.
+
+- **PVC:** Shared storage for simulation results.

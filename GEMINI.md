@@ -1,7 +1,7 @@
 # GEMINI.md - Project Context & Operational Guide
 
 **Project:** SITO (Symbolic Ito)
-**Stack:** OCaml 5.x (Multicore) / MLIR / Owl
+**Stack:** OCaml 5.x (Multicore) / MLIR / Owl / Kubernetes / Redis
 **Last Updated:** February 2026
 
 ---
@@ -31,28 +31,32 @@ The mathematical core is based on the principles outlined in *MAPLE for Stochast
     *   **Weak Euler (Order 1.0):** Simplified noise matching first moments.
     *   **Weak Taylor 2.0 (Order 2.0):** Higher-order corrections for accurate statistical moments.
 
-## 3. System Architecture
+## 3. System Architecture (Kubernetes Native)
 
-SITO utilizes OCaml 5.x's multicore capabilities and structured concurrency via `Eio`.
+SITO uses a **Control Plane / Data Plane** architecture with asynchronous job processing.
 
 ### 3.1. Components
-1.  **Core Domain Logic (`sito_core`)**:
-    *   **Symbolic Engine:** Custom GADT-based AST for mathematical expressions.
-    *   **Calculus Engine:** Symbolic differentiation and Ito's Lemma application.
-    *   **MLIR Emitter:** Translates discretized schemes into MLIR textual or in-memory format for compilation.
+1.  **API Service (`sito-api`)**:
+    *   **Role:** User-facing REST API and Web UI (`Dream`).
+    *   **Responsibility:** Validates requests, estimates workload cost, pushes jobs to Redis, and serves simulation results.
+    *   **Scaling:** Stateless, scales on HTTP request load.
 
-2.  **Backend Service (`sito_server`)**:
-    *   **Framework:** `Dream`.
-    *   **Concurrency:** `Eio` for managing simulation fibers and I/O.
-    *   **Numerics:** `Owl` for dense matrix operations, JIT execution, and Automatic Differentiation.
+2.  **Worker Service (`sito-worker`)**:
+    *   **Role:** High-performance simulation engine (`Owl` + `Eio`).
+    *   **Responsibility:** Pulls jobs from Redis, executes Monte Carlo simulations, writes full results to Shared Storage, and updates status in Redis.
+    *   **Scaling:** Scales via HPA based on Queue Depth / Workload Estimate.
 
-3.  **Frontend Service (`sito_ui`)**:
-    *   **Framework:** `Bonsai` (by Jane Street).
-    *   **Compilation:** `js_of_ocaml`.
-    *   **Role:** Reactive web dashboard for model definition and visualization.
+3.  **Message Broker (Redis)**:
+    *   **Job Queue:** Holds pending simulation tasks.
+    *   **Status DB:** Stores job status (Queued, Running, Completed, Failed) and metadata (progress, stats).
+
+4.  **Storage (PVC)**:
+    *   **Shared Volume:** A Kubernetes `PersistentVolume` accessible by all workers and the API to store large simulation artifacts (e.g., CSV/Parquet files).
 
 ### 3.2. Data Flow
-`User Input (Bonsai UI)` -> `JSON (Dream API)` -> `Symbolic GADT Parsing` -> `Discretization` -> `MLIR Generation` -> `Owl/LLVM JIT` -> `Multicore Monte Carlo (Eio)` -> `Statistical Aggregation` -> `JSON Response` -> `UI Charts`.
+1.  **Submit:** User POSTs `/api/v1/simulate` -> API pushes job to Redis Queue -> Returns `job_id`.
+2.  **Process:** Worker pops job -> Simulates (Multicore) -> Writes to `/data/results/<job_id>.csv` -> Updates Redis Status.
+3.  **Retrieve:** User polls `/api/v1/jobs/<job_id>` -> API checks Redis -> If complete, serves file from Shared Volume.
 
 ## 4. Technology Stack
 
@@ -64,8 +68,9 @@ SITO utilizes OCaml 5.x's multicore capabilities and structured concurrency via 
 | **Numerics/AD** | `Owl` | Performant OCaml scientific computing with built-in AD and GPU support. |
 | **Code Gen** | `ocaml-mlir` | Modern compiler infrastructure for hardware-portable performance. |
 | **Web API** | `Dream` | Modern, simple, and composable web framework. |
+| **Messaging** | `redis-lwt` | Fast, lightweight message broker for job queuing. |
 | **Frontend** | `Bonsai` | Functional UI library allowing code sharing (types) with the backend. |
-| **Deployment** | Docker | Minimal scratch/alpine images containing statically linked binaries. |
+| **Deployment** | Docker / K8s | Scalable container orchestration. |
 
 ## 5. Software Development Cycle
 
@@ -82,7 +87,7 @@ SITO utilizes OCaml 5.x's multicore capabilities and structured concurrency via 
 *   **Formatter:** `ocamlformat`.
 *   **Linter:** `bisect_ppx` (for coverage).
 
-### 5.2. Testing (`dune runtest`)
+### 5.3. Testing (`dune runtest`)
 1.  **Unit Tests:** `Alcotest` for symbolic logic and GADT transformations.
 2.  **Golden Tests:** Compare simulation results of Geometric Brownian Motion (GBM) against analytical formulas.
 3.  **Property-Based Testing:** `QCheck` for validating symbolic identities (e.g., $d(XY) = XdY + YdX + dXdY$).
@@ -97,4 +102,5 @@ SITO utilizes OCaml 5.x's multicore capabilities and structured concurrency via 
 *   **Setup:** `opam install . --deps-only`
 *   **Build:** `dune build`
 *   **Test:** `dune runtest`
-*   **Run Server:** `dune exec sito_server`
+*   **Run Server:** `dune exec bin/server.exe` (Local unified mode)
+*   **Run K8s:** `make k8s-deploy` (Not yet implemented)

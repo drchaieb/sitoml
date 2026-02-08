@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sito-worker
+spec:
+  replicas: 2 # Start with 2 workers
+  selector:
+    matchLabels:
+      app: sito-worker
+  template:
+    metadata:
+      labels:
+        app: sito-worker
+    spec:
+      containers:
+      - name: worker
+        image: sito:latest
+        imagePullPolicy: Never
+        env:
+        - name: ROLE
+          value: "worker"
+        - name: REDIS_HOST
+          value: "redis"
+        volumeMounts:
+        - name: data
+          mountPath: /data
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: sito-data

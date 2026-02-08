@@ -1,8 +1,8 @@
 (library
  (public_name sito_core)
  (name sito_core)
- (libraries owl eio)
- (preprocess (pps ppx_deriving_yojson)))
+ (libraries owl eio redis-lwt)
+ (preprocess (pps ppx_deriving_yojson lwt_ppx)))
 
 (ocamllex lexer)
 

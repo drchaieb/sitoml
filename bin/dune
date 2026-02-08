@@ -1,5 +1,4 @@
 (executable
- (public_name sito_server)
- (name server)
- (libraries sito_core dream eio_main)
+ (name main)
+ (libraries sito_core dream lwt)
  (preprocess (pps lwt_ppx)))

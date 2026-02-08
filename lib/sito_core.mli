@@ -29,6 +29,9 @@ module Runner = Runner
 module Server_logic = Server_logic
 (** Backend business logic. *)
 
+module Job_queue = Job_queue
+(** Redis job queue management. *)
+
 module Parser_util = Parser_util
 (** Parsing utilities. *)
 

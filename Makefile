@@ -1,6 +1,6 @@
 # SITO Makefile
 
-.PHONY: all setup build test doc run clean deploy-ui
+.PHONY: all setup build test doc run clean deploy-ui docker-build k8s-deploy k8s-clean local-redis stop-redis
 
 # Default target: build everything and generate docs
 all: build deploy-ui doc test
@@ -24,13 +24,40 @@ test:
 	opam exec -- dune runtest
 
 # Generate high-quality HTML documentation from source code (odoc)
-# Output will be in _build/default/_doc/_html
 doc:
 	opam exec -- dune build @doc
 
-# Run the unified server (API + UI)
-run: deploy-ui
-	opam exec -- dune exec bin/server.exe
+# Run the local unified server (API + UI)
+# Dependencies: deploy-ui (JS) and local-redis (Docker)
+run: deploy-ui local-redis
+	opam exec -- dune exec bin/main.exe
+
+# Start a local Redis instance via Docker
+local-redis:
+	@docker ps -f name=sito-redis | grep sito-redis > /dev/null || \
+	(docker start sito-redis 2>/dev/null || \
+	docker run -d --name sito-redis -p 6379:6379 redis:7-alpine)
+
+# Stop the local Redis instance
+stop-redis:
+	docker stop sito-redis || true
+
+# Docker image build
+docker-build:
+	docker build -t sito:latest .
+
+# Kubernetes deployment
+k8s-deploy:
+	kubectl apply -f k8s/redis.yaml
+	kubectl apply -f k8s/pvc.yaml
+	kubectl apply -f k8s/api.yaml
+	kubectl apply -f k8s/worker.yaml
+
+k8s-clean:
+	kubectl delete -f k8s/worker.yaml
+	kubectl delete -f k8s/api.yaml
+	kubectl delete -f k8s/pvc.yaml
+	kubectl delete -f k8s/redis.yaml
 
 # Clean build artifacts
 clean:
