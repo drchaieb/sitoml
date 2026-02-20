@@ -70,7 +70,7 @@ SITO uses a **Control Plane / Data Plane** architecture with asynchronous job pr
 | **Web API** | `Dream` | Modern, simple, and composable web framework. |
 | **Messaging** | `redis-lwt` | Fast, lightweight message broker for job queuing. |
 | **Frontend** | `Bonsai` | Functional UI library allowing code sharing (types) with the backend. |
-| **Deployment** | Docker / K8s | Scalable container orchestration. |
+| **Deployment** | Podman / K8s | Scalable container orchestration. |
 
 ## 5. Software Development Cycle
 
@@ -102,6 +102,6 @@ SITO uses a **Control Plane / Data Plane** architecture with asynchronous job pr
 *   **Setup:** `make setup`
 *   **Build:** `make build`
 *   **Test:** `make test`
-*   **Run Local (API + UI + Redis):** `make run`
+*   **Run Local (API + UI + Redis):** `make run` (Binds to `0.0.0.0:8080` for WSL/Container access)
 *   **Run Worker Local:** `REDIS_HOST=127.0.0.1 opam exec -- dune exec bin/worker/main.exe`
-*   **Run K8s:** `make docker-build && make k8s-deploy`
+*   **Run K8s:** `make podman-build && make k8s-deploy`

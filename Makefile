@@ -1,6 +1,6 @@
 # SITO Makefile
 
-.PHONY: all setup build test doc run clean deploy-ui docker-build k8s-deploy k8s-clean local-redis stop-redis
+.PHONY: all setup build test doc run clean deploy-ui podman-build k8s-deploy k8s-clean local-redis stop-redis
 
 # Default target: build everything and generate docs
 all: build deploy-ui doc test
@@ -13,38 +13,38 @@ setup:
 
 # Build core library, server, and web frontend
 build:
+	rm -f web/main.bc.js
 	opam exec -- dune build
-
 # Deploy compiled JS to the web folder for static serving
 deploy-ui: build
 	cp _build/default/web/main.bc.js web/
 
 # Run all tests (Symbolic, Server, Verification)
 test:
+	rm -f web/main.bc.js
 	opam exec -- dune runtest
-
 # Generate high-quality HTML documentation from source code (odoc)
 doc:
 	opam exec -- dune build @doc
 
 # Run the local unified server (API + UI)
-# Dependencies: deploy-ui (JS) and local-redis (Docker)
+# Dependencies: deploy-ui (JS) and local-redis (Podman)
 run: deploy-ui local-redis
 	opam exec -- dune exec bin/main.exe
 
-# Start a local Redis instance via Docker
+# Start a local Redis instance via Podman
 local-redis:
-	@docker ps -f name=sito-redis | grep sito-redis > /dev/null || \
-	(docker start sito-redis 2>/dev/null || \
-	docker run -d --name sito-redis -p 6379:6379 redis:7-alpine)
+	@podman ps -f name=sito-redis | grep sito-redis > /dev/null || \
+	(podman start sito-redis 2>/dev/null || \
+	podman run -d --name sito-redis -p 6379:6379 redis:7-alpine)
 
 # Stop the local Redis instance
 stop-redis:
-	docker stop sito-redis || true
+	podman stop sito-redis || true
 
-# Docker image build
-docker-build:
-	docker build -t sito:latest .
+# Podman image build
+podman-build:
+	podman build -f Containerfile -t sito:latest .
 
 # Kubernetes deployment
 k8s-deploy:

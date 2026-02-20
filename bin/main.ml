@@ -17,12 +17,12 @@ let status_handler job_id _ =
     Dream.json json
   with _ -> Dream.json ~status:`Not_Found {|{"error": "Job not found"}|}
 
-let run ?(port = 8080) () =
+let run ?(interface = "0.0.0.0") ?(port = 8080) () =
   let redis_host = Sys.getenv_opt "REDIS_HOST" |> Option.value ~default:"127.0.0.1" in
   let redis_port = Sys.getenv_opt "REDIS_PORT" |> Option.map int_of_string |> Option.value ~default:6379 in
   Lwt_main.run (
     let%lwt () = create_connection redis_host redis_port in
-    Dream.serve ~port
+    Dream.serve ~interface ~port
     @@ Dream.logger
     @@ Dream.router [
       Dream.post "/api/v1/simulate" simulate_handler;

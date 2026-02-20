@@ -35,10 +35,10 @@ This document outlines the transition from a local unified server to a distribut
     4.  Update Redis status to `Completed`.
 
 ## Phase 3: Containerization
-**Goal:** Dockerize the services.
+**Goal:** Containerize the services with Podman.
 
-### 3.1. Dockerfile
-*   [x] Create a multi-stage `Dockerfile`.
+### 3.1. Podman
+*   [x] Create a multi-stage `Containerfile`.
 *   [x] Build stage: Compiles `api` and `worker`.
 *   [x] Runtime stage: Minimal image copying binaries and `web/` assets.
 *   [x] Entrypoint script to switch between `api` and `worker` modes based on env var.
@@ -58,5 +58,5 @@ This document outlines the transition from a local unified server to a distribut
 **Goal:** Ensure usability.
 
 *   [x] Update `docs/USER_GUIDE.md` with K8s deployment instructions.
-*   [x] Update `Makefile` with `docker-build`, `k8s-deploy`, and `local-redis`.
-*   [x] Verify end-to-end flow with a local Redis docker instance.
+*   [x] Update `Makefile` with `podman-build`, `k8s-deploy`, and `local-redis`.
+*   [x] Verify end-to-end flow with a local Redis podman instance.

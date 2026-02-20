@@ -20,7 +20,7 @@ SITO (Symbolic Ito) is a "compiler for stochastic models" that automates this en
 *   **FR3: Automated Ito Calculus:** The system MUST automatically and verifiably apply Ito's Lemma.
 *   **FR4: Discretization Schemes:** The system MUST generate recurrence equations for multiple schemes (MVP: Euler-Maruyama, Milstein).
 *   **FR5: High-Performance Code Generation:** The system MUST compile recurrence equations into optimized simulation code for CPUs and GPUs using MLIR. This code MUST include embedded AD capabilities.
-*   **FR6: Scalability & Orchestration:** The system MUST be deployable as a single Docker container and be able to orchestrate multiple workers for large-scale computations, including a cost-estimation feature.
+*   **FR6: Scalability & Orchestration:** The system MUST be deployable as a single Podman container and be able to orchestrate multiple workers for large-scale computations, including a cost-estimation feature.
 *   **FR7: Intermediate Representation (IR) Export:** The system MUST allow power-users to inspect and export the generated MLIR textual format, enabling integration with custom toolchains.
 *   **FR8: In-App Verification Suite:** The UI MUST include a "Verification Suite" where users can run a model against a known analytical solution (e.g., Black-Scholes) and view convergence plots to build trust in the results.
 
@@ -50,7 +50,7 @@ SITO (Symbolic Ito) is a "compiler for stochastic models" that automates this en
 
 ### 4.4. Database & Deployment
 *   **Database:** PostgreSQL. The **`caqti`** library will be used to provide a type-safe, asynchronous interface to the database.
-*   **Deployment (IaC):** Terraform will define the infrastructure. The application will be packaged into a minimal Docker container using a multi-stage build. The first stage uses `dune` to build a statically linked native executable. The second stage copies this single binary into a `scratch` or `alpine` image for a minimal footprint.
+*   **Deployment (IaC):** Terraform will define the infrastructure. The application will be packaged into a minimal Podman container using a multi-stage build. The first stage uses `dune` to build a statically linked native executable. The second stage copies this single binary into a `scratch` or `alpine` image for a minimal footprint.
 
 ## 5. Development Roadmap & Phasing
 *   **Phase 1: Core Library (MVP):**

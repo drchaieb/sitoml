@@ -1,6 +1,10 @@
 opam-version: "2.0"
 synopsis: "Symbolic Ito"
 description: "A compiler for stochastic models"
+maintainer: ["admin@sito.dev"]
+authors: ["SITO Team"]
+homepage: "https://github.com/sito/sitoml"
+bug-reports: "https://github.com/sito/sitoml/issues"
 depends: [
   "ocaml" {>= "5.0"}
   "dune" {>= "3.0"}
@@ -11,6 +15,9 @@ depends: [
   "eio_main"
   "redis-lwt"
   "ppx_deriving_yojson"
+  "js_of_ocaml"
+  "js_of_ocaml-ppx"
+  "brr"
   "alcotest" {with-test}
 ]
 build: [

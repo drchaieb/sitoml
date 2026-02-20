@@ -105,23 +105,14 @@ SITO is designed to run on Kubernetes with a Redis message broker.
 
 
 ### Prerequisites
-
-- Docker
-
+- Podman
 - Kubectl
-
 - A Kubernetes cluster (Kind, Minikube, or Cloud)
 
-
-
 ### Deployment Steps
-
-1.  **Build the Docker Image:**
-
+1.  **Build the Podman Image:**
     ```bash
-
-    make docker-build
-
+    make podman-build
     ```
 
 2.  **Deploy to Cluster:**

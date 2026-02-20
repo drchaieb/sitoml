@@ -59,7 +59,7 @@ This document outlines the phased development of the SITO (Symbolic Ito) platfor
 ## Phase 5: Deployment & Infrastructure
 **Goal:** Containerize and automate.
 
-*   [x] Create a multi-stage Dockerfile.
+*   [x] Create a multi-stage Containerfile.
 *   [ ] Set up GitHub Actions for CI.
 *   [x] Implement a comprehensive Makefile.
 

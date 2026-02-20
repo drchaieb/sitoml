@@ -1,5 +1,5 @@
 open Brr
-open Sito_core
+open Brr_io
 
 let simulate () =
   let doc = G.document in
@@ -14,19 +14,29 @@ let simulate () =
   let n_steps = int_of_string (get_val "n_steps") in
   let dt = float_of_string (get_val "dt") in
 
-  let req = Server_logic.{
-    drift;
-    diffusion;
-    initial_state = [("S", s0)];
-    n_steps;
-    dt;
-    n_paths = 1;
-  } in
+  let req = {|{
+    "drift": "|} ^ drift ^ {|",
+    "diffusion": "|} ^ diffusion ^ {|",
+    "initial_state": [["S", |} ^ string_of_float s0 ^ {|]],
+    "n_steps": |} ^ string_of_int n_steps ^ {|,
+    "dt": |} ^ string_of_float dt ^ {|,
+    "n_paths": 1
+  }|} in
   
-  let res = Server_logic.handle_simulate req in
-  let path = List.hd res.paths in
-  let out = Document.find_el_by_id doc (Jstr.v "output") |> Option.get in
-  El.set_children out [El.txt (Jstr.v (String.concat ", " (List.map string_of_float path)))]
+  let url = Jstr.v "/api/v1/simulate" in
+  let init = Fetch.Request.init ~method':(Jstr.v "POST") ~body:(Fetch.Body.of_jstr (Jstr.v req)) () in
+  let fut = Fetch.url url ~init in
+  
+  Fut.await fut @@ function
+  | Error e -> Console.(log [Jstr.v "Fetch error: "; e])
+  | Ok response ->
+      let body_fut = Fetch.Response.as_body response |> Fetch.Body.json in
+      Fut.await body_fut @@ function
+      | Error e -> Console.(log [Jstr.v "JSON error: "; e])
+      | Ok json ->
+          let job_id = Jv.get json "job_id" |> Jv.to_jstr in
+          let out = Document.find_el_by_id doc (Jstr.v "output") |> Option.get in
+          El.set_children out [El.txt (Jstr.v "Job submitted! ID: "); El.txt job_id]
 
 let init () =
   let doc = G.document in
